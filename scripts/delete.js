@@ -1,11 +1,13 @@
-require('dotenv').config();
+require('dotenv').config({path:'../.env'});
 const { WebClient } = require('@slack/web-api');
+const slackUrl = require('./commons/url')
 const token  = process.env.BOT_USER_OAUTH_ACCESS_TOKEN
 
 const deleteMessage = async (url) => {
     // APIトークン
     const slackApp = new WebClient(token);
-    const data = parseSlackMessageLink(url)
+    const data = slackUrl.parseMessageLink(url)
+    console.log(data)
     const channel = data.channelId
     const ts = data.ts
     const params = {
@@ -16,20 +18,10 @@ const deleteMessage = async (url) => {
     console.log(response);
 };
 
-const parseSlackMessageLink = (url)=>{
-    const parsedUrl = new URL(url)
-    const pathname = parsedUrl.pathname
-    const splitPathName = pathname.split('/')
-    const channelId = splitPathName[2]
-    const ts_ = splitPathName[3].replace('p','')
-    const ts = ts_.slice(0,-6) + '.' + ts_.slice(-6)
-    return {channelId:channelId,ts:ts}
-}
-
 deleteMessage(process.argv[2])
     .then(r =>{
         console.log(r)
     })
     .catch(err => {
-        console.log(err)
+        console.log(JSON.stringify(err))
     });
